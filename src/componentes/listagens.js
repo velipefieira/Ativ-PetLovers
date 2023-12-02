@@ -6,13 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 
-type Props = {
-    tema: string;
-};
-
-export default class Listagens extends Component<Props> {
-    render() {
-        let tema = this.props.tema;
+export default function Listagens ({tema}) {
         return (
             <div className="container-fluid">
                 <div className="listagens">
@@ -318,4 +312,3 @@ export default class Listagens extends Component<Props> {
             </div>
         );
     }
-}

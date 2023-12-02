@@ -3,13 +3,7 @@ import React, { Component } from "react";
 import "./styles/home.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-type Props = {
-    tema: string;
-};
-
-export default class Home extends Component<Props> {
-    render() {
-        let tema = this.props.tema;
+export default function Home ({tema}) {
         return (
             <div className="container-fluid">
                 <h1 className="titulo-home">PetLovers</h1>
@@ -39,4 +33,3 @@ export default class Home extends Component<Props> {
             </div>
         );
     }
-}
