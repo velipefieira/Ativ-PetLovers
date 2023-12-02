@@ -1,7 +1,9 @@
 import { Component, ChangeEvent } from "react";
 import "./styles/form.css";
+import axios from "axios";
 
 type TelefoneInfo = {
+    ddd: string,
     telefone: string;
 };
 
@@ -15,14 +17,20 @@ type Props = {
 };
 
 type State = {
+    nome: string;
+    nomeSocial: string;
+    cpf: { cpf: string, dataEmissao: any }
     rgList: RgInfo[];
     telefoneList: TelefoneInfo[];
 };
 
-export default class FormularioCadastroCliente extends Component<Props, State> {
+export default class FormularioEditarCliente extends Component<Props, State> {
     state: State = {
+        nome: "",
+        nomeSocial: "",
+        cpf: { cpf: '', dataEmissao: ''},
         rgList: [{ rg: "", dataEmissao: "" }],
-        telefoneList: [{ telefone: "" }],
+        telefoneList: [{ ddd: '', telefone: "" }],
     };
 
     addRgField = () => {
@@ -33,7 +41,7 @@ export default class FormularioCadastroCliente extends Component<Props, State> {
 
     addTelefoneField = () => {
         this.setState((prevState) => ({
-            telefoneList: [...prevState.telefoneList, { telefone: "" }],
+            telefoneList: [...prevState.telefoneList, { ddd: '', telefone: "" }],
         }));
     };
 
@@ -55,6 +63,15 @@ export default class FormularioCadastroCliente extends Component<Props, State> {
         });
     };
 
+    handleDDDChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
+        const { value } = e.target;
+        this.setState((prevState) => {
+            const updatedTelefoneList = [...prevState.telefoneList];
+            updatedTelefoneList[index].ddd = value;
+            return { telefoneList: updatedTelefoneList };
+        });
+    };
+
     handleTelefoneChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
         const { value } = e.target;
         this.setState((prevState) => {
@@ -64,6 +81,33 @@ export default class FormularioCadastroCliente extends Component<Props, State> {
         });
     };
 
+    handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    let data = {
+       'nome': this.state.nome,
+       'nomeSocial': this.state.nomeSocial,
+       'cpf': this.state.cpf,
+       'rg': this.state.rgList,
+       'telefone': this.state.telefoneList
+    }    
+
+    axios.post('http://localhost:5000/clientes', data)
+    .then((response) => {
+        console.log(response.data);
+        alert("Pet(s) cadastrado com sucesso!");
+        this.setState({
+            nome: "",
+            nomeSocial: "",
+            cpf: { cpf: '', dataEmissao: ''},
+            rgList: [{ rg: "", dataEmissao: "" }],
+            telefoneList: [{ ddd: '', telefone: "" }],
+        });
+    })
+        .catch(function (error) {
+            console.log(error);
+        });
+    }
+
     render() {
         let tema = this.props.tema;
         return (
@@ -71,31 +115,25 @@ export default class FormularioCadastroCliente extends Component<Props, State> {
                 <h3 style={{ textAlign: "center", marginBottom: 20, marginTop: 20 }}>
                     Cadastro de Clientes
                 </h3>
-                <form>
+                <form onSubmit={this.handleSubmit}>
                     <label className="form-titulo">Nome:</label>
                     <div className="input-group mb-3">
-                        <input type="text" className="form-control" placeholder="Digite o nome" aria-label="Nome" aria-describedby="basic-addon1" />
+                        <input type="text" className="form-control" value={this.state.nome} placeholder="Digite o nome" onChange={(e) => this.setState({ nome: e.target.value })} aria-label="Nome" aria-describedby="basic-addon1" required/>
                     </div>
 
                     <label className="form-titulo">Nome social:</label>
                     <div className="input-group mb-3">
-                        <input type="text" className="form-control" placeholder="Digite o nome social" aria-label="Nome social" aria-describedby="basic-addon1" />
-                    </div>
-
-                    <label className="form-titulo">E-mail:</label>
-                    <div className="input-group mb-3">
-                        <span className="input-group-text" id="basic-addon1" style={{ background: tema }}>@</span>
-                        <input type="text" className="form-control" placeholder="Digite o E-mail" aria-label="E-mail" aria-describedby="basic-addon1" />
+                        <input type="text" className="form-control" value={this.state.nomeSocial} placeholder="Digite o nome social" onChange={(e) => this.setState({ nomeSocial: e.target.value })} aria-label="Nome social" aria-describedby="basic-addon1" required/>
                     </div>
 
                     <label className="form-titulo">CPF:</label>
                     <div className="input-group mb-3">
-                        <input type="text" className="form-control" placeholder=" Digite o CPF" aria-label="CPF" aria-describedby="basic-addon1" />
+                        <input type="text" className="form-control" value={this.state.cpf.cpf} placeholder=" Digite o CPF" onChange={(e) => this.setState(prevState => ({ cpf: { ...prevState.cpf, cpf: e.target.value } }))} aria-label="CPF" aria-describedby="basic-addon1" required/>
                     </div>
 
                     <label className="form-titulo">Data de Emissão do CPF:</label>
                     <div className="input-group mb-3">
-                        <input type="date" className="form-control" placeholder="Data de Emissão do CPF" aria-label="Data de emissão do CPF" aria-describedby="basic-addon1" />
+                        <input type="date" className="form-control" value={this.state.cpf.dataEmissao} placeholder="Data de Emissão do CPF" onChange={(e) => this.setState(prevState => ({ cpf: { ...prevState.cpf, dataEmissao: e.target.value } }))} aria-label="Data de emissão do CPF" aria-describedby="basic-addon1" required/>
                     </div>
 
                     <label className="form-titulo">RG:</label>
@@ -106,14 +144,14 @@ export default class FormularioCadastroCliente extends Component<Props, State> {
                                 className="form-control"
                                 placeholder="Digite o RG"
                                 value={rg.rg}
-                                onChange={(e) => this.handleRgChange(e, index)}
+                                onChange={(e) => this.handleRgChange(e, index)} required
                             />
                             <input
                                 type="date"
                                 className="form-control"
                                 placeholder="Data de Emissão do RG"
                                 value={rg.dataEmissao}
-                                onChange={(e) => this.handleDataEmissaoChange(e, index)}
+                                onChange={(e) => this.handleDataEmissaoChange(e, index)} required
                             />
                         </div>
                     ))}
@@ -135,9 +173,16 @@ export default class FormularioCadastroCliente extends Component<Props, State> {
                             <input
                                 type="text"
                                 className="form-control"
-                                placeholder="Digite o telefone"
+                                placeholder="Digite o DDD do telefone"
+                                value={telefone.ddd}
+                                onChange={(e) => this.handleDDDChange(e, index)} required
+                            />
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Digite o número do telefone"
                                 value={telefone.telefone}
-                                onChange={(e) => this.handleTelefoneChange(e, index)}
+                                onChange={(e) => this.handleTelefoneChange(e, index)} required
                             />
                         </div>
                     ))}
@@ -152,7 +197,7 @@ export default class FormularioCadastroCliente extends Component<Props, State> {
                     </button>
 
                     <div className="input-group mb-3 d-flex justify-content-center">
-                        <button className="btn btn-outline-secondary" type="button" style={{ background: tema }}>
+                        <button className="btn btn-outline-secondary" type="submit" style={{ background: tema }}>
                             Cadastrar
                         </button>
                     </div>

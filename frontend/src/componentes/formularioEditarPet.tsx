@@ -1,5 +1,6 @@
 import { Component, ChangeEvent } from "react";
 import "./styles/form.css";
+import axios from "axios";
 
 type PetInfo = {
     nome: string;
@@ -14,12 +15,26 @@ type Props = {
 
 type State = {
     petList: PetInfo[];
+    cliCpf: string;
+    clientes: [{ valor: string, dataEmissao: string}]
 };
 
-export default class FormularioCadastroPet extends Component<Props, State> {
+export default class FormularioEditarPet extends Component<Props, State> {
     state: State = {
         petList: [{ nome: "", tipo: "", raca: "", genero: "" }],
+        cliCpf: '',
+        clientes: [{ valor: '', dataEmissao: ''}]
     };
+
+    componentDidMount() {
+        axios.get("http://localhost:5000/clientes/cpfs")
+          .then(response => {
+            this.setState({ clientes: response.data });
+          })
+          .catch(error => {
+            console.error("Erro ao obter clientes:", error);
+          });
+      }
 
     addPetField = () => {
         this.setState((prevState) => ({
@@ -40,6 +55,37 @@ export default class FormularioCadastroPet extends Component<Props, State> {
         });
     };
 
+    handleSubmit = (event: any) => {
+        event.preventDefault();
+    
+        let data = {
+            'petList': this.state.petList,
+            'cpf': this.state.cliCpf
+        };
+    
+        const clientes: { valor: string, dataEmissao: string }[] = this.state.clientes;
+        const cliCpf: string = this.state.cliCpf;
+    
+        if (clientes.some(cliente => cliente.valor === cliCpf)) {
+            console.log('enviando ao backend', data);
+            axios.post('http://localhost:5000/pets', data)
+                .then((response) => {
+                    console.log(response.data);
+                    alert("Pet(s) cadastrado com sucesso!");
+    
+                    this.setState({
+                        petList: [{ nome: "", tipo: "", raca: "", genero: "" }],
+                        cliCpf: "",
+                    });
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        } else {
+            alert("Não há nenhum cliente com o CPF inserido, tente novamente!");
+        }
+    }
+    
     render() {
         let tema = this.props.tema;
         return (
@@ -47,15 +93,18 @@ export default class FormularioCadastroPet extends Component<Props, State> {
                 <h3 style={{ textAlign: "center", marginBottom: 20, marginTop: 20 }}>
                     Cadastro de Pets
                 </h3>
-                <form>
+                <form onSubmit={this.handleSubmit}>
                     <label className="form-titulo">CPF do cliente:</label>
                     <div className="input-group mb-3">
                         <input
                             type="text"
                             className="form-control"
                             placeholder="Digite o CPF do cliente"
+                            value={this.state.cliCpf}
+                            onChange={(e) => this.setState({ cliCpf: e.target.value })}
                             aria-label="Digite o CPF do cliente"
                             aria-describedby="basic-addon1"
+                            required
                         />
                     </div>
             
@@ -70,6 +119,7 @@ export default class FormularioCadastroPet extends Component<Props, State> {
                                     placeholder="Digite o nome do pet"
                                     value={pet.nome}
                                     onChange={(e) => this.handlePetChange(e, index, "nome")}
+                                    required
                                 />
                             </div>
 
@@ -81,6 +131,7 @@ export default class FormularioCadastroPet extends Component<Props, State> {
                                     placeholder="Digite o tipo do pet"
                                     value={pet.tipo}
                                     onChange={(e) => this.handlePetChange(e, index, "tipo")}
+                                    required
                                 />
                             </div>
 
@@ -92,6 +143,7 @@ export default class FormularioCadastroPet extends Component<Props, State> {
                                     placeholder="Digite a raça do pet"
                                     value={pet.raca}
                                     onChange={(e) => this.handlePetChange(e, index, "raca")}
+                                    required
                                 />
                             </div>
 
@@ -103,6 +155,7 @@ export default class FormularioCadastroPet extends Component<Props, State> {
                                     placeholder="Digite o gênero do pet"
                                     value={pet.genero}
                                     onChange={(e) => this.handlePetChange(e, index, "genero")}
+                                    required
                                 />
                             </div>
                         </div>
@@ -118,7 +171,7 @@ export default class FormularioCadastroPet extends Component<Props, State> {
                     </button>
 
                     <div className="input-group mb-3 d-flex justify-content-center">
-                        <button className="btn btn-outline-secondary" type="button" style={{ background: tema }}>
+                        <button className="btn btn-outline-secondary" type="submit" style={{ background: tema }}>
                             Cadastrar
                         </button>
                     </div>

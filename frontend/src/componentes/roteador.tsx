@@ -1,13 +1,16 @@
 import { Component } from "react";
 import BarraNavegacao from "./barraNavegacao";
 import ListaCliente from "./listaClientes";
-import FormularioCadastroCliente from "./formularioCadastroCliente";
+import FormularioCadastroCliente from "./formularioEditarCliente";
 import FormularioCadastroProdutoServico from "./formularioCadastroProdutoServico";
 import FormularioCadastroPet from "./formularioCadastroPet";
 import ListaProdutoServico from "./listaProdutoServico";
 import ListaPets from "./listaPets";
 import Listagens from "./listagens";
 import Compras from "./compras";
+import FormularioEditarProdutoServico from "./formularioEditarProdutoServico";
+import FormularioEditarCliente from "./formularioEditarCliente";
+import FormularioEditarPet from "./formularioEditarPet";
 
 type state = {
     tela: string
@@ -36,7 +39,14 @@ export default class Roteador extends Component<{}, state>{
             return (
                 <>
                     {barraNavegacao}
-                    <ListaCliente tema="#e3f2fd" />
+                    <ListaCliente tema="#e3f2fd" seletorView={this.selecionarView} />
+                </>
+            )
+        } else if (this.state.tela === 'Editar Clientes') {
+            return (
+                <>
+                    {barraNavegacao}
+                    <FormularioEditarCliente tema="#e3f2fd" />
                 </>
             )
         } else if (this.state.tela === 'Cadastro de Pets') {
@@ -46,11 +56,25 @@ export default class Roteador extends Component<{}, state>{
                     <FormularioCadastroPet tema="#e3f2fd" />
                 </>
             )
+        }  else if (this.state.tela === 'Editar Pets') {
+            return (
+                <>
+                    {barraNavegacao}
+                    <FormularioEditarPet tema="#e3f2fd" />
+                </>
+            )
         } else if (this.state.tela === 'Cadastro de Produto e Serviço') {
             return (
                 <>
                     {barraNavegacao}
                     <FormularioCadastroProdutoServico tema="#e3f2fd" />
+                </>
+            )
+        } else if (this.state.tela === 'Editar Produto e Serviço') {
+            return (
+                <>
+                    {barraNavegacao}
+                    <FormularioEditarProdutoServico tema="#e3f2fd" />
                 </>
             )
         } else if (this.state.tela === 'Produtos e Serviços') {

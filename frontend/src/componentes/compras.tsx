@@ -7,6 +7,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import { LiaShoppingCartSolid } from "react-icons/lia";
+import ProdutosServicos from "./listaProdutoServico";
+import axios from "axios";
+import Cliente from "./listaClientes";
 
 type Props = {
     tema: string;
@@ -15,6 +18,12 @@ type Props = {
 interface State {
     show: boolean;
     count: number;
+    produtos: ProdutosServicos[]
+    servicos: ProdutosServicos[]
+    produtoServicoSelecionado: ProdutosServicos | null
+    cliCpf: string;
+    clientes: [{ valor: string, dataEmissao: string}];
+    tipoCompra: string
 }
 
 export default class ListaProdutosServico extends Component<Props, State> {
@@ -24,15 +33,45 @@ export default class ListaProdutosServico extends Component<Props, State> {
         this.state = {
             show: false,
             count: 0,
+            produtos: [],
+            servicos: [],
+            produtoServicoSelecionado: null,
+            cliCpf: '',
+            clientes: [{ valor: '', dataEmissao: ''}],
+            tipoCompra: ''
         };
+    }
+
+    componentDidMount() {
+        axios.get("http://localhost:5000/produtos")
+          .then(response => {
+            this.setState({ produtos: response.data });
+          })
+          .catch(error => {
+            console.error("Erro ao obter produtos:", error);
+          });
+        axios.get("http://localhost:5000/servicos")
+          .then(response => {
+            this.setState({ servicos: response.data });
+          })
+          .catch(error => {
+            console.error("Erro ao obter serviços:", error);
+          });
+         axios.get("http://localhost:5000/clientes/cpfs")
+              .then(response => {
+                this.setState({ clientes: response.data });
+              })
+              .catch(error => {
+                console.error("Erro ao obter clientes:", error);
+              });
     }
 
     handleClose = () => {
         this.setState({ show: false });
     };
 
-    handleShow = () => {
-        this.setState({ show: true });
+    handleShow = (produtoservico: ProdutosServicos, tipo: string) => {
+        this.setState({ show: true, produtoServicoSelecionado:produtoservico, tipoCompra:tipo});
     };
 
     handleIncrementCounter = () => {
@@ -49,11 +88,43 @@ export default class ListaProdutosServico extends Component<Props, State> {
         }
     };
 
-    handleConfirm = () => {
-        console.log('Confirmação');
+    handleConfirm = (event: any) => {
+        event.preventDefault();
+    
+    
+        const clientes: { valor: string, dataEmissao: string }[] = this.state.clientes;
+        const cliCpf: string = this.state.cliCpf;
+
+        if (clientes.some(cliente => cliente.valor === cliCpf)) {
+    
+            const data = {
+                'id': this.state.produtoServicoSelecionado,
+                'qnt': this.state.count,
+                'cpf': cliCpf,
+                'tipo': this.state.tipoCompra
+            };
+    
+            axios.post(`http://localhost:5000/comprar`, data) 
+                .then((response) => {
+                    console.log(response.data);
+                    alert("Produto/Serviço comprado com sucesso!");
+    
+                    this.setState({
+                        count: 0,
+                        cliCpf: "",
+                    });
+                })
+                .catch(function (error): void {
+                    console.log('erro:',error);
+                });
+        } else {
+            alert("CPF não encontrado. Tente novamente!");
+        }
     };
+    
 
     render() {
+        const proServSelecionado = this.state.produtoServicoSelecionado
         let tema = this.props.tema;
         return (
             <div className="container-fluid">
@@ -63,16 +134,24 @@ export default class ListaProdutosServico extends Component<Props, State> {
                             <Modal.Title>Informações do produto/serviço</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <div>
-                                <p>
-                                    <strong>Categoria:</strong>
-                                </p>
-                                <p>
-                                    <strong>Nome:</strong>
-                                </p>
-                                <p>
-                                    <strong>Preço:</strong>
-                                </p>
+                        {proServSelecionado && (
+                            <>
+                            <strong>CPF do cliente:</strong>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Digite o CPF do cliente"
+                                    value={this.state.cliCpf}
+                                    onChange={(e) => this.setState({ cliCpf: e.target.value })}
+                                    aria-label="Digite o CPF do cliente"
+                                    required
+                                />
+                            <p>
+                                <strong>Nome:</strong> {proServSelecionado.nome}
+                            </p>
+                            <p>
+                                <strong>Valor:</strong> R$ {proServSelecionado.valor}
+                            </p>
                                 <p>
                                     <strong>Quantidade:</strong>
                                 </p>
@@ -99,13 +178,14 @@ export default class ListaProdutosServico extends Component<Props, State> {
                                     
                                     <button
                                         onClick={this.handleConfirm}
-                                        type="button"
+                                        type="submit"
                                         className="btn btn-primary"
                                     >
                                         Confirmar
                                     </button>
                                 </div>
-                            </div>
+                            </>
+                            )}
                         </Modal.Body>
                         <Modal.Footer>
                             <Button variant="secondary" onClick={this.handleClose}>
@@ -117,75 +197,57 @@ export default class ListaProdutosServico extends Component<Props, State> {
                 <div className="produto">
                     <h3 className="titulo">Produtos</h3>
                     <div className="list-group">
-                        <div className="list-group-item d-flex justify-content-between align-items-center">
-                            <a href="#" className="list-group-item-action custom-link">
-                                Produto 1
+                    {this.state.produtos.map(produto => (
+                        <div key={produto.id} className="list-group-item d-flex justify-content-between align-items-center">
+                            <a
+                            href="#"
+                            className="list-group-item-action custom-link"
+                            onClick={() => this.handleShow(produto,'produto')}
+                            >
+                            {produto.nome}
                             </a>
                             <div className="btn-group">
                                 <button
-                                    onClick={this.handleShow}
                                     type="button"
                                     className="botao-comprar"
+                                    onClick={() => this.handleShow(produto,'produto')}
                                 >
                                     <LiaShoppingCartSolid style={{ fontSize: 20 }} />
                                     <p style={{ margin: 0 }}>Comprar</p>
                                 </button>
                             </div>
                         </div>
-                        <div className="list-group-item d-flex justify-content-between align-items-center">
-                            <a href="#" className="list-group-item-action custom-link" onClick={this.handleShow}>
-                                Produto 2
-                            </a>
-                            <div className="btn-group">
-                                <button
-                                    onClick={this.handleShow}
-                                    type="button"
-                                    className="botao-comprar"
-                                >
-                                    <LiaShoppingCartSolid style={{ fontSize: 20 }} />
-                                    <p style={{ margin: 0 }}>Comprar</p>
-                                </button>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
 
                 <div className="servico">
-                    <h3 className="titulo">Serviços</h3>
+                    <h3 className="titulo">Serviço</h3>
                     <div className="list-group">
-                        <div className="list-group-item d-flex justify-content-between align-items-center">
-                            <a href="#" className="list-group-item-action custom-link" onClick={this.handleShow}>
-                                Serviço 1
+                    {this.state.servicos.map(servico => (
+                        <div key={servico.id} className="list-group-item d-flex justify-content-between align-items-center">
+                            <a
+                            href="#"
+                            className="list-group-item-action custom-link"
+                            onClick={() => this.handleShow(servico,'serviço')}
+                            >
+                            {servico.nome}
                             </a>
                             <div className="btn-group">
                                 <button
-                                    onClick={this.handleShow}
                                     type="button"
                                     className="botao-comprar"
+                                    onClick={() => this.handleShow(servico,'serviço')}
                                 >
                                     <LiaShoppingCartSolid style={{ fontSize: 20 }} />
                                     <p style={{ margin: 0 }}>Comprar</p>
                                 </button>
                             </div>
                         </div>
-                        <div className="list-group-item d-flex justify-content-between align-items-center">
-                            <a href="#" className="list-group-item-action custom-link">
-                                Serviço 2
-                            </a>
-                            <div className="btn-group">
-                                <button
-                                    onClick={this.handleShow}
-                                    type="button"
-                                    className="botao-comprar"
-                                >
-                                    <LiaShoppingCartSolid style={{ fontSize: 20 }} />
-                                    <p style={{ margin: 0 }}>Comprar</p>
-                                </button>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
-            </div>
+                </div>
         );
     }
 }
