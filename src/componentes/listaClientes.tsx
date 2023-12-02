@@ -1,5 +1,6 @@
 import React, { ChangeEvent, Component } from "react";
 import { FaPencil, FaRegTrashCan } from "react-icons/fa6";
+import { FaShoppingCart } from "react-icons/fa";
 import "./styles/listaGeral.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Modal from "react-bootstrap/Modal";
@@ -21,6 +22,7 @@ type Props = {
 interface State {
     showInfoModal: boolean;
     showEditModal: boolean;
+    showProdutoModal: boolean;
     rgList: RgInfo[];
     telefoneList: TelefoneInfo[];
 };
@@ -33,9 +35,18 @@ export default class ListaCliente extends Component<Props, State> {
         this.state = {
             showInfoModal: false,
             showEditModal: false,
+            showProdutoModal: false,
             rgList: [{ rg: "", dataEmissao: "" }],
             telefoneList: [{ telefone: "" }],
         };
+    }
+
+    handleShowProdutoModal = () => {
+        this.setState({ showProdutoModal: true })
+    }
+
+    handleCloseProdutoModal = () => {
+        this.setState({ showProdutoModal: false })
     }
 
     handleShowInfoModal = () => {
@@ -104,7 +115,7 @@ export default class ListaCliente extends Component<Props, State> {
                             <Modal.Title>Informações do cliente</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                        <p>
+                            <p>
                                 <strong>Nome:</strong>
                             </p>
                             <p>
@@ -264,6 +275,65 @@ export default class ListaCliente extends Component<Props, State> {
                     </Modal>
                 </div>
 
+                <div className="excluir-produtoServico">
+                    <Modal show={this.state.showProdutoModal} onHide={this.handleCloseProdutoModal}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Produtos/serviços consumidos</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <div className="lista-produtosServicos">
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <p style={{ margin: 0 }}>
+                                        <strong>Nome do produto/serviço 1:</strong>
+                                    </p>
+                                    <div className="btn-group" style={{ marginLeft: '5px' }}>
+                                        <button
+                                            type="button"
+                                            className="botao-excluir"
+                                            style={{
+                                                border: 'none',
+                                                background: 'none',
+                                                cursor: 'pointer',
+                                            }}
+                                        >
+                                            <FaRegTrashCan style={{ fontSize: 20 }} />
+                                        </button>
+                                    </div>
+                                </div>
+                                <p>
+                                    <strong>Preço do produto/serviço 1:</strong>
+                                </p>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <p style={{ margin: 0 }}>
+                                        <strong>Nome do produto/serviço 2:</strong>
+                                    </p>
+                                    <div className="btn-group" style={{ marginLeft: '5px' }}>
+                                        <button
+                                            type="button"
+                                            className="botao-excluir"
+                                            style={{
+                                                border: 'none',
+                                                background: 'none',
+                                                cursor: 'pointer',
+                                            }}
+                                        >
+                                            <FaRegTrashCan style={{ fontSize: 20 }} />
+                                        </button>
+                                    </div>
+                                </div>
+                                <p>
+                                    <strong>Preço do produto/serviço 2:</strong>
+                                </p>
+                            </div>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={this.handleCloseProdutoModal}>
+                                Fechar
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+                </div>
+
                 <div className="conteudo">
                     <h3 className="titulo">Clientes</h3>
                     <div className="list-group">
@@ -276,6 +346,13 @@ export default class ListaCliente extends Component<Props, State> {
                                 Cliente 1
                             </a>
                             <div className="btn-group">
+                                <button
+                                    onClick={this.handleShowProdutoModal}
+                                    type="button"
+                                    className="btn btn-outline-primary"
+                                >
+                                    <FaShoppingCart style={{ fontSize: 20 }} />
+                                </button>
                                 <button
                                     onClick={this.handleShowEditModal}
                                     type="button"
@@ -301,6 +378,13 @@ export default class ListaCliente extends Component<Props, State> {
                                 Cliente 2
                             </a>
                             <div className="btn-group">
+                                <button
+                                    onClick={this.handleShowProdutoModal}
+                                    type="button"
+                                    className="btn btn-outline-primary"
+                                >
+                                    <FaShoppingCart style={{ fontSize: 20 }} />
+                                </button>
                                 <button
                                     onClick={this.handleShowEditModal}
                                     type="button"
