@@ -60,10 +60,16 @@ export default class ListaProdutosServico extends Component<Props, State> {
                 <div className="modal-compra">
                     <Modal show={this.state.show} onHide={this.handleClose}>
                         <Modal.Header closeButton>
-                            <Modal.Title>Informações do produto/serviço</Modal.Title>
+                            <Modal.Title>Compra de produto/serviço</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
                             <div>
+                                <p>
+                                    <strong>CPF do cliente relacionado à compra:</strong>
+                                </p>
+                                    <div className="input-group mb-3">
+                                        <input type="text" className="form-control" placeholder=" Digite o CPF" aria-label="CPF" aria-describedby="basic-addon1" />
+                                    </div>
                                 <p>
                                     <strong>Categoria:</strong>
                                 </p>
@@ -79,24 +85,24 @@ export default class ListaProdutosServico extends Component<Props, State> {
                                 <div className="d-flex flex-column align-items-center mt-3">
                                     <div className="btn-group d-flex align-items-center mb-2">
                                         <button
-                                            onClick={this.handleIncrementCounter}
-                                            type="button"
-                                            className="btn btn-sm increment-btn"
-                                        >
-                                            <FaPlus style={{ fontSize: 20 }} />
-                                        </button>
-                                        <p className="count">{this.state.count}</p>
-                                        <button
                                             onClick={this.handleDecrementCounter}
                                             type="button"
                                             className="btn btn-sm decrement-btn"
                                         >
                                             <FaMinus style={{ fontSize: 20 }} />
                                         </button>
+                                        <p className="count">{this.state.count}</p>
+                                        <button
+                                            onClick={this.handleIncrementCounter}
+                                            type="button"
+                                            className="btn btn-sm increment-btn"
+                                        >
+                                            <FaPlus style={{ fontSize: 20 }} />
+                                        </button>
                                     </div>
-                                    
-                                    <br/>
-                                    
+
+                                    <br />
+
                                     <button
                                         onClick={this.handleConfirm}
                                         type="button"

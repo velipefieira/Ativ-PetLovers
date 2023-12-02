@@ -7,16 +7,6 @@
     background-color: transparent !important;
 }
 
-form {
-    width: 80%;
-    margin: 0 auto;
-}
-
-@media (max-width: 900px){
-  form {
-    width: 90%;
-  }
-}
 
 .titulo {
     text-align: center;
@@ -84,4 +74,8 @@ form {
 .btn-group-vertical>.btn, .btn-group>.btn {
   position: relative;
   flex: 0;
+}
+
+.modal-title {
+  text-align: center;
 }
