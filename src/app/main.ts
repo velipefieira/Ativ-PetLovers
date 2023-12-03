@@ -21,6 +21,7 @@ import EdicaoProduto from "../negocio/produto/edicaoProduto";
 import ExclusãoProduto from "../negocio/produto/exclusaoProduto";
 import EdicaoServico from "../negocio/servico/edicaoServico";
 import ExclusãoServico from "../negocio/servico/exclusaoServico";
+import ListagemServicosProdutosPorTipoRaca from "../negocio/produto/listagemProdutoServicoRacaTipo";
 
 console.log(`Bem-vindo ao melhor sistema de gerenciamento de pet shops e clínicas veterinarias`)
 let empresa = new Empresa()
@@ -94,6 +95,7 @@ while (execucao) {
             console.log(`2 - Edição`);
             console.log(`3 - Exclusão`);
             console.log(`4 - Listagem de todos os pets`);
+            console.log(`5 - Listagem de produtos e serviços mais consumidos por raça e tipo`)
             
             console.log(`0 -  Voltar`); 
 
@@ -115,6 +117,9 @@ while (execucao) {
                 case 4:
                     let listagemPet = new ListagemPet(empresa.getPets)
                     listagemPet.listar()
+                case 5:
+                    let listagemRacaTipo = new ListagemServicosProdutosPorTipoRaca(empresa.getClientes)
+                    listagemRacaTipo.listar()
                 case 0: 
                     break;
                 default:
