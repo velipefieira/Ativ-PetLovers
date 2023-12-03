@@ -16,7 +16,7 @@ export default class ListagemPet extends Listagem {
                 var dono = `Sem dono cadastrado`
                 console.log(`Gênero: ` + pet.getGenero + ` | Dono: ` + dono);
             } else {
-            console.log(`Gênero: ` + pet.getGenero + ` | Dono: ` + pet.getDono.nome);
+            console.log(`Gênero: ` + pet.getGenero + ` | Dono: ` + pet.getDono);
             }
             console.log(`--------------------------------------`);
         });

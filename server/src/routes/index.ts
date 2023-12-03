@@ -20,20 +20,31 @@ let clienteTeste = {
     nome: "Felipe Vieira",
     nomeSocial: "Felipe Vieira",
     cpf: { cpf: "45642791818", dataEmissao: "2005-09-27" },
-    rg: [{ id: 1,rg: "565142033", dataEmissao: "2005-09-27" }],
-    dataCadastro: "2023-12-02T14:43:11.248Z", 
+    rg: [{ id: 1, rg: "565142033", dataEmissao: "2005-09-27" }],
+    dataCadastro: "2023-12-02T14:43:11.248Z",
     telefone: [{ id: 1, ddd: "12", telefone: "991059434" }
-]
+    ]
 }
 
-cadastro.cadastrar(clienteTeste) 
-let petTeste = new Pet('Bella','Gato','Snowshoe','Fêmea')
+let clienteTeste2 = {
+    nome: "Livia Alves",
+    nomeSocial: "Livia Alves",
+    cpf: { cpf: "123", dataEmissao: "2005-09-27" },
+    rg: [{ id: 1, rg: "565142033", dataEmissao: "2005-09-27" }],
+    dataCadastro: "2023-12-02T14:43:11.248Z",
+    telefone: [{ id: 1, ddd: "12", telefone: "991059434" }
+    ]
+}
+
+cadastro.cadastrar(clienteTeste)
+cadastro.cadastrar(clienteTeste2)
+let petTeste = new Pet('Bella', 'Gato', 'Snowshoe', 'Fêmea')
 petTeste.setDono(clienteTeste.cpf.cpf)
 empresa.getPets.push(petTeste)
 let cliente = empresa.getClientes.find(cliente => cliente.id == 1)
 cliente.addPet(petTeste)
-let servicoTeste = new Servico("Banho",29.99)
-let produtoTeste = new Produto("Whiskas sabor frango",9.99)
+let servicoTeste = new Servico("Banho", 29.99)
+let produtoTeste = new Produto("Whiskas sabor frango", 9.99)
 empresa.getServicos.push(servicoTeste)
 empresa.getProdutos.push(produtoTeste)
 cliente.addProdutosConsumidos(produtoTeste)
@@ -52,7 +63,7 @@ router.get('/', (req, res) => {
 
 // Rota para buscar mensagens(passando o id do chamado)
 router.get('/clientes', (req, res) => {
-    res.json(empresa.getClientes)    
+    res.json(empresa.getClientes)
 });
 
 router.get('/clientes/:id', (req, res) => {
@@ -68,40 +79,52 @@ router.post('/clientes/excluir/:id', (req, res) => {
 });
 
 router.post('/clientes/:id', (req, res) => {
-    try{
+    try {
         const novosDados = req.body
         const id = parseInt(req.params.id)
         const cliente = empresa.getClientes.find(cliente => cliente.id == id)
+
+        empresa.getClientes.some(cliente => {
+            console.log(cliente.getCpf.getValor == novosDados.cpf.valor)
+            console.log(cliente.id != id)
+            console.log('---------')
+        })
+
+        if (empresa.getClientes.some(cliente => cliente.getCpf.getValor == novosDados.cpf.valor && cliente.id != id)) {
+            return res.status(400).json('CPF já cadastrado!');
+        }
+
         cliente.nome = novosDados.nome
         cliente.nomeSocial = novosDados.nomeSocial
         cliente.setCpf(novosDados.cpf)
         if (cliente.getPets().length > 0) {
-            cliente.getPets().map( pet => {
+            cliente.getPets().map(pet => {
                 pet.setDono(novosDados.cpf.valor)
             })
         }
         cliente.setRgs([])
-        novosDados.rgs.map( rg => {
+        novosDados.rgs.map(rg => {
             let novoRG = new RG(rg.valor, rg.dataEmissao)
             cliente.addRgs(novoRG)
         })
         cliente.setTel([])
-        novosDados.telefones.map( tel => {
+        novosDados.telefones.map(tel => {
             let novotel = new Telefone(tel.ddd, tel.numero)
             cliente.addTelefone(novotel)
         })
         res.json(cliente)
-    } catch (error){
+    } catch (error) {
         res.status(500, 'Erro ao editar:', error)
     }
 });
 
-router.post('/clientes', async (req: Request, res: Response) => {    
+router.post('/clientes', async (req: Request, res: Response) => {
     let cadastro = new CadastroCliente(empresa.getClientes)
     try {
-    cadastro.cadastrar(req.body)
-    res.json('Cliente cadastrado com sucesso')
-    } catch (error){
+        const insert = cadastro.cadastrar(req.body)
+        if (insert && 'status' in insert) return res.status(insert.status).json(insert.msg);
+        res.json('Cliente cadastrado com sucesso');
+    } catch (error) {
         res.json("Erro ao cadastrar cliente ", error)
     }
 });
@@ -115,7 +138,7 @@ router.post('/pets', async (req: Request, res: Response) => {
         let cadastro = new CadastroPet(empresa.getPets, empresa.getClientes)
         cadastro.cadastrar(req.body)
         res.json('Pet(s) cadastrado(s) com sucesso')
-    } catch (error){
+    } catch (error) {
         res.status(500, "Erro ao cadastrar pet ", error)
     }
 })
@@ -127,7 +150,7 @@ router.get('/pets/:id', (req, res) => {
 });
 
 router.post('/pets/:id', (req, res) => {
-    try{
+    try {
         const novosDados = req.body
         const id = parseInt(req.params.id)
         const pet = empresa.getPets.find(pet => pet.id == id)
@@ -138,12 +161,12 @@ router.post('/pets/:id', (req, res) => {
             donoNovo.addPet(pet)
         }
         pet.setNome(novosDados.nome)
-        pet.setRaca (novosDados.raca)
+        pet.setRaca(novosDados.raca)
         pet.setGenero(novosDados.genero)
         pet.setTipo(novosDados.tipo)
         pet.setDono(novosDados.dono)
         res.json(pet)
-    } catch (error){
+    } catch (error) {
         res.status(500, 'Erro ao editar:', error)
     }
 });
@@ -176,27 +199,27 @@ router.post('/produtos/excluircompra', (req, res) => {
         const pos = parseInt(req.body.pos)
         const cliId = parseInt(req.body.cliId)
         const prodId = parseInt(req.body.id)
-        const produto = empresa.getProdutos.find( p => p.id == prodId)
+        const produto = empresa.getProdutos.find(p => p.id == prodId)
         produto.removerVenda(1)
         const cliente = empresa.getClientes.find(cliente => cliente.id == cliId)
         cliente.removeProdutosConsumidos(pos)
         res.json(empresa.getClientesPorID(cliId))
     } catch (error) {
-        res.status(500, "Erro ao excluir", error)        
+        res.status(500, "Erro ao excluir", error)
     }
 });
 
 router.post('/produtoservico/:id', async (req: Request, res: Response) => {
     try {
-        let tipo = req.body.tipo  
-        if (tipo == 'Produto'){
+        let tipo = req.body.tipo
+        if (tipo == 'Produto') {
             const novosDados = req.body
             const id = parseInt(req.params.id)
             const produto = empresa.getProdutos.find(produto => produto.id == id)
             produto.nome = novosDados.nome
             produto.valor = novosDados.valor
             res.json(produto)
-        } if (tipo == "Serviço"){
+        } if (tipo == "Serviço") {
             const novosDados = req.body
             const id = parseInt(req.params.id)
             const servico = empresa.getServicos.find(servico => servico.id == id)
@@ -206,22 +229,22 @@ router.post('/produtoservico/:id', async (req: Request, res: Response) => {
         } else {
             res.status(500, 'Erro ao cadastrar')
         }
-    } catch (error){
+    } catch (error) {
         res.json("Erro ao cadastrar produto ou serviço", error)
     }
 });
 
 router.post('/produtoservico/excluir/:id', (req, res) => {
     const id = parseInt(req.params.id);
-    let tipo = req.body.tipo  
-    if (tipo == 'Produto'){
-        empresa.getClientes.map (cli => {
+    let tipo = req.body.tipo
+    if (tipo == 'Produto') {
+        empresa.getClientes.map(cli => {
             cli.removeProdutosConsumidosPorId(id)
         })
         empresa.removeProdutoPorId(id)
         res.json(empresa.getProdutos)
-    } if (tipo == "Serviço"){
-        empresa.getClientes.map (cli => {
+    } if (tipo == "Serviço") {
+        empresa.getClientes.map(cli => {
             cli.removeServicosConsumidosPorId(id)
         })
         empresa.removeServicoPorId(id)
@@ -233,19 +256,19 @@ router.post('/produtoservico/excluir/:id', (req, res) => {
 
 router.post('/produtoservico', async (req: Request, res: Response) => {
     try {
-        let tipo = req.body.tipo  
-        if (tipo == 'Produto'){
-        let cadastro = new CadastroProduto(empresa.getProdutos)
-        cadastro.cadastrar(req.body.dados)
-        res.json('Produto cadastrado com sucesso')
-        } else if (tipo == "Servico"){
+        let tipo = req.body.tipo
+        if (tipo == 'Produto') {
+            let cadastro = new CadastroProduto(empresa.getProdutos)
+            cadastro.cadastrar(req.body.dados)
+            res.json('Produto cadastrado com sucesso')
+        } else if (tipo == "Servico") {
             let cadastro = new CadastroServico(empresa.getServicos)
             cadastro.cadastrar(req.body.dados)
             res.json('Servico cadastrado com sucesso')
         } else {
             res.status(500, 'Erro ao cadastrar')
         }
-    } catch (error){
+    } catch (error) {
         res.json("Erro ao cadastrar produto ", error)
     }
 });
@@ -265,37 +288,37 @@ router.post('/servicos/excluircompra', async (req, res) => {
         const pos = parseInt(req.body.pos)
         const cliId = parseInt(req.body.cliId)
         const servId = parseInt(req.body.id)
-        const servico = empresa.getServicos.find( s => s.id == servId)
+        const servico = empresa.getServicos.find(s => s.id == servId)
         servico.removerVenda(1)
         const cliente = empresa.getClientes.find(cliente => cliente.id == cliId)
         cliente.removeServicosConsumidos(pos)
         res.json(empresa.getClientesPorID(cliId))
     } catch (error) {
-        res.status(500, "Erro ao excluir", error)        
+        res.status(500, "Erro ao excluir", error)
     }
 });
 
 router.post('/comprar', async (req: Request, res: Response) => {
-    try {        
-    let tipo = req.body.tipo    
-    let qnt = parseInt(req.body.qnt)
-    
-    const cliente = empresa.getClientes.find(cliente => cliente.getCpf.getValor == req.body.cpf)
-    if (tipo == "produto"){
-        let produto = empresa.getProdutos.find(produto => produto.id == req.body.id.id)
-        for (let i = 0; i < qnt; i++) {
-            cliente.addProdutosConsumidos(produto)
+    try {
+        let tipo = req.body.tipo
+        let qnt = parseInt(req.body.qnt)
+
+        const cliente = empresa.getClientes.find(cliente => cliente.getCpf.getValor == req.body.cpf)
+        if (tipo == "produto") {
+            let produto = empresa.getProdutos.find(produto => produto.id == req.body.id.id)
+            for (let i = 0; i < qnt; i++) {
+                cliente.addProdutosConsumidos(produto)
+            }
+            produto.addVenda(qnt)
+        } else if (tipo == "serviço") {
+            let servico = empresa.getServicos.find(servico => servico.id == req.body.id.id)
+            for (let i = 0; i < qnt; i++) {
+                cliente.addServicosConsumidos(servico)
+            }
+            servico.addVenda(qnt)
         }
-        produto.addVenda(qnt)
-    } else if (tipo == "serviço"){
-        let servico = empresa.getServicos.find(servico => servico.id == req.body.id.id)
-        for (let i = 0; i < qnt; i++) {
-            cliente.addServicosConsumidos(servico) 
-        }
-        servico.addVenda(qnt)
-    }
-    res.json(`${tipo} comprado com sucesso`)
-    } catch (error){
+        res.json(`${tipo} comprado com sucesso`)
+    } catch (error) {
         res.json("Erro ao comprar ", error)
     }
 });
@@ -316,16 +339,16 @@ router.get('/listagens', (req, res) => {
     });
 
     let cliProdValor = [...clientesComValorQuantidade].sort((a, b) => parseFloat(b.valorProdutos) - parseFloat(a.valorProdutos));
-    if (cliProdValor.length > 5) { cliProdValor = cliProdValor.slice(0,5)}
+    if (cliProdValor.length > 5) { cliProdValor = cliProdValor.slice(0, 5) }
 
     let cliProdQnt = [...clientesComValorQuantidade].sort((a, b) => b.quantidadeProdutos - a.quantidadeProdutos);
-    if (cliProdQnt.length > 10) { cliProdQnt = cliProdQnt.slice(0,10)}
+    if (cliProdQnt.length > 10) { cliProdQnt = cliProdQnt.slice(0, 10) }
 
     let cliServValor = [...clientesComValorQuantidade].sort((a, b) => parseFloat(b.valorServicos) - parseFloat(a.valorServicos));
-    if (cliServValor.length > 5) { cliServValor = cliServValor.slice(0,5)}
+    if (cliServValor.length > 5) { cliServValor = cliServValor.slice(0, 5) }
 
     let cliServQnt = [...clientesComValorQuantidade].sort((a, b) => b.quantidadeServicos - a.quantidadeServicos);
-    if (cliServQnt.length > 10) { cliServQnt = cliServQnt.slice(0,10)}
+    if (cliServQnt.length > 10) { cliServQnt = cliServQnt.slice(0, 10) }
 
     let topProd = empresa.getProdutos.sort((a, b) => {
         const consumoA = a.vendas;

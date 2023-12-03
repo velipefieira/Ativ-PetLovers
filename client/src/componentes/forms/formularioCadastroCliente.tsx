@@ -28,7 +28,7 @@ export default class FormularioCadastroCliente extends Component<Props, State> {
     state: State = {
         nome: "",
         nomeSocial: "",
-        cpf: { cpf: '', dataEmissao: ''},
+        cpf: { cpf: '', dataEmissao: '' },
         rgList: [{ rg: "", dataEmissao: "" }],
         telefoneList: [{ ddd: '', telefone: "" }],
     };
@@ -82,30 +82,31 @@ export default class FormularioCadastroCliente extends Component<Props, State> {
     };
 
     handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    let data = {
-       'nome': this.state.nome,
-       'nomeSocial': this.state.nomeSocial,
-       'cpf': this.state.cpf,
-       'rg': this.state.rgList,
-       'telefone': this.state.telefoneList
-    }    
+        event.preventDefault()
+        let data = {
+            'nome': this.state.nome,
+            'nomeSocial': this.state.nomeSocial,
+            'cpf': this.state.cpf,
+            'rg': this.state.rgList,
+            'telefone': this.state.telefoneList
+        }
 
-    axios.post('http://localhost:5000/clientes', data)
-    .then((response) => {
-        console.log(response.data);
-        alert("Cliente cadastrado com sucesso!");
-        this.setState({
-            nome: "",
-            nomeSocial: "",
-            cpf: { cpf: '', dataEmissao: ''},
-            rgList: [{ rg: "", dataEmissao: "" }],
-            telefoneList: [{ ddd: '', telefone: "" }],
-        });
-    })
-        .catch(function (error) {
-            console.log(error);
-        });
+        axios.post('http://localhost:5000/clientes', data)
+            .then((response) => {
+                alert("Cliente cadastrado com sucesso!");
+                this.setState({
+                    nome: "",
+                    nomeSocial: "",
+                    cpf: { cpf: '', dataEmissao: '' },
+                    rgList: [{ rg: "", dataEmissao: "" }],
+                    telefoneList: [{ ddd: '', telefone: "" }],
+                });
+            })
+            .catch(function (error) {
+                if (error.response.data) {
+                    alert("CPF já cadastrado!");
+                }
+            });
     }
 
     render() {
@@ -118,22 +119,22 @@ export default class FormularioCadastroCliente extends Component<Props, State> {
                 <form onSubmit={this.handleSubmit}>
                     <label className="form-titulo">Nome:</label>
                     <div className="input-group mb-3">
-                        <input type="text" className="form-control" value={this.state.nome} placeholder="Digite o nome" onChange={(e) => this.setState({ nome: e.target.value })} aria-label="Nome" aria-describedby="basic-addon1" required/>
+                        <input type="text" className="form-control" value={this.state.nome} placeholder="Digite o nome" onChange={(e) => this.setState({ nome: e.target.value })} aria-label="Nome" aria-describedby="basic-addon1" required />
                     </div>
 
                     <label className="form-titulo">Nome social:</label>
                     <div className="input-group mb-3">
-                        <input type="text" className="form-control" value={this.state.nomeSocial} placeholder="Digite o nome social" onChange={(e) => this.setState({ nomeSocial: e.target.value })} aria-label="Nome social" aria-describedby="basic-addon1" required/>
+                        <input type="text" className="form-control" value={this.state.nomeSocial} placeholder="Digite o nome social" onChange={(e) => this.setState({ nomeSocial: e.target.value })} aria-label="Nome social" aria-describedby="basic-addon1" required />
                     </div>
 
                     <label className="form-titulo">CPF:</label>
                     <div className="input-group mb-3">
-                        <input type="text" className="form-control" value={this.state.cpf.cpf} placeholder=" Digite o CPF" onChange={(e) => this.setState(prevState => ({ cpf: { ...prevState.cpf, cpf: e.target.value } }))} aria-label="CPF" aria-describedby="basic-addon1" required/>
+                        <input type="text" className="form-control" value={this.state.cpf.cpf} placeholder=" Digite o CPF" onChange={(e) => this.setState(prevState => ({ cpf: { ...prevState.cpf, cpf: e.target.value } }))} aria-label="CPF" aria-describedby="basic-addon1" required />
                     </div>
 
                     <label className="form-titulo">Data de Emissão do CPF:</label>
                     <div className="input-group mb-3">
-                        <input type="date" className="form-control" value={this.state.cpf.dataEmissao} placeholder="Data de Emissão do CPF" onChange={(e) => this.setState(prevState => ({ cpf: { ...prevState.cpf, dataEmissao: e.target.value } }))} aria-label="Data de emissão do CPF" aria-describedby="basic-addon1" required/>
+                        <input type="date" className="form-control" value={this.state.cpf.dataEmissao} placeholder="Data de Emissão do CPF" onChange={(e) => this.setState(prevState => ({ cpf: { ...prevState.cpf, dataEmissao: e.target.value } }))} aria-label="Data de emissão do CPF" aria-describedby="basic-addon1" required />
                     </div>
 
                     <label className="form-titulo">RG:</label>
@@ -165,7 +166,7 @@ export default class FormularioCadastroCliente extends Component<Props, State> {
                         Adicionar RG
                     </button>
 
-                    <br/>
+                    <br />
 
                     <label className="form-titulo">Telefone:</label>
                     {this.state.telefoneList.map((telefone, index) => (
