@@ -11,6 +11,7 @@ import CadastroCliente from '../negocio/cliente/cadastroCliente';
 import CadastroPet from '../negocio/pet/cadastroPet';
 import CadastroProduto from '../negocio/produto/cadastroProduto';
 import CadastroServico from '../negocio/servico/cadastroServico';
+import ListagemServicosProdutosPorTipoRaca from '../negocio/listagemProdutoServicoPorRacaTipo';
 
 const router = Router();
 let empresa = new Empresa()
@@ -360,6 +361,11 @@ router.get('/listagens', (req, res) => {
         const consumoB = b.vendas;
         return consumoB - consumoA;
     });
+    const listagemInstance = new ListagemServicosProdutosPorTipoRaca(empresa.getClientes);
+    listagemInstance.listar();
+  
+    const servProdTipoRaca = listagemInstance.getDados();
+  
 
     let data = {
         "cliServValor": cliServValor,
@@ -367,7 +373,8 @@ router.get('/listagens', (req, res) => {
         "cliProdValor": cliProdValor,
         "cliProdQnt": cliProdQnt,
         "topProd": topProd,
-        "topServ": topServ
+        "topServ": topServ,
+        "servProdTipoRaca": servProdTipoRaca
     };
 
     res.json(data);

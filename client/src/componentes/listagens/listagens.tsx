@@ -23,6 +23,14 @@ export default interface Listagem {
     quantidadeServicos: number
 }
 
+
+interface Raca {
+    nome: string;
+    tipo: string;
+    produtos: string[];
+    servicos: string[];
+  }
+
 interface State {
     listagens: {
         cliProdValor: Listagem [];
@@ -41,6 +49,9 @@ interface State {
             valor:number,
             vendas:number
         }[];
+        servProdTipoRaca: {
+            [raca: string]: Raca;
+            }
     }
 }
 
@@ -56,6 +67,7 @@ export default class Listagens extends Component<Props, State> {
                 cliServValor: [],
                 cliServQnt: [],
                 topServ: [],
+                servProdTipoRaca: {}
             }
         };
     }
@@ -233,6 +245,44 @@ export default class Listagens extends Component<Props, State> {
                     </div>
 
                     <br />
+
+                    <h5 className="subtitulo">Listagem geral dos produtos e serviços consumidos por raça e tipo de pet</h5>
+
+                    {Object.keys(listagem.servProdTipoRaca).length !== 0 ? (
+                    Object.entries(listagem.servProdTipoRaca).map(([raca, dados], index: number) => (
+                        <>
+                        <div key={index} className="list-group">
+                        <strong>Raça: {raca} - {dados.tipo}</strong>
+                        <strong>Produtos:</strong>
+                        {dados.produtos.length > 0 && (
+                            <div className="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="#" className="list-group-item-action custom-link">
+                                {dados.produtos.join(", ")}
+                            </a>
+                            <div>
+                                <strong>{dados.produtos.length}</strong>
+                            </div>
+                            </div>
+                        )}
+
+                        <strong>Serviços:</strong>
+                        {dados.servicos.length > 0 && (
+                            <div className="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="#" className="list-group-item-action custom-link">
+                                {dados.servicos.join(", ")}
+                            </a>
+                            <div>
+                                <strong>{dados.servicos.length}</strong>
+                            </div>
+                            </div>
+                        )}
+                        </div>
+                        <br />
+                        </>
+                    ))
+                    ) : (
+                    <h5 className="aviso">Ainda não há nada para mostrar aqui</h5>
+                    )}
 
                 </div>
             </div>

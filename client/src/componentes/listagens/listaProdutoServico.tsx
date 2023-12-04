@@ -170,7 +170,7 @@ export default class ListaProdutosServico extends Component<Props, State> {
                     <div className="servicos">
                         <h3 className="titulo">Serviços</h3>
                         <div className="list-group">
-                        { this.state.produtos.length > 0 ? (
+                        { this.state.servicos.length > 0 ? (
                             <>
                             {this.state.servicos.map(servico => (
                             <div key={servico.id} className="list-group-item d-flex justify-content-between align-items-center">

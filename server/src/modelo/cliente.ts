@@ -122,4 +122,7 @@ export default class Cliente {
     public removePetPorId(id: number) {
         this.pets = this.pets.filter(pet => pet.id !== id);
     }
+    public get getAllPets(): Array<Pet> {
+        return this.pets
+    }
 }
